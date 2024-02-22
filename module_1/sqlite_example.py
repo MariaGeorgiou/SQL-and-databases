@@ -1,20 +1,26 @@
-#Step 0 - import sqlite3 (comes with python library)
+
 import sqlite3
 import queries as q
+import pandas as pd
 
-#step 1 - connect to the database
-#triple check spelling of database filename = will not throw error but create new file
-connection =sqlite3.connect('rpg_db.sqlite3')
+#DB Connect function
+def connect_to_db(db_name = 'rpg_db.sqlite3'):
+    return sqlite3.connect(db_name)
 
-#step2 -make the cursor
-cursor = connection.cursor()
 
-#step 3 - write a query
-#query = 'SELECT character_id, name FROM charactercreator_character;' - changed this as now using queries tab for all queries
-
-#step 4 - execute query on cursor and fetch results - 'pulling the results'
-#results = cursor.execute(query).fetchall() -changed this to below as moved queries to queries tab
-results = cursor.execute(q.SELECT_ALL).fetchall()
+def execute_q(conn, query):
+    #make the cursor
+    curs = conn.cursor()
+    #execute query
+    curs.execute(query)
+    #pull and return results
+    return curs.fetchall()
 
 if __name__ == '__main__':
-    print(results[:5])
+    conn = connect_to_db()
+    #print(execute_q(conn, q.SELECT_ALL)[:5])
+
+    results = execute_q(conn, q.AVG_ITEM_WEIGHT_PER_CHARACTER)
+    df = pd.DataFrame(results)
+    df.columns = ['name', 'average_item_weight']
+    df.to_csv('rpg_db.csv', index = False)
